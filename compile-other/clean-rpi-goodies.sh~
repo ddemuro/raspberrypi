@@ -41,8 +41,3 @@ case $response in
         echo "Not installing."
         ;;
 esac
-
-
-
-echo "Fixing scripts permissions"
-chmod 755 /opt/raspberrypi/ -R
