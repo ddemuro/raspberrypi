@@ -7,8 +7,8 @@ readonly install_path='/opt/raspberrypi'
 readonly gitrepo='https://git@github.com:ddemuro/crelay.git'
 
 apt-get install $libs
+cd install_path/compile-other
 git clone $gitrepo
-cd $install_path
 cd src
 make
 chmod +x crelay
