@@ -21,6 +21,8 @@ read -r -p "Would you like zshell and other goodies installed to this Raspberry?
 case $response in
     [yY][eE][sS]|[yY]) 
         apt-get -y install $toinstall
+		cd ~
+		sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
         ;;
     *)
         echo "Not installing."
