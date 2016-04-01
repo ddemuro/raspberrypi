@@ -4,7 +4,7 @@
 ###########################################
 readonly graphic='libx11-.*'
 readonly toinstall='zsh'
-readonly install_path='/opt/scripts/'
+readonly install_path='/opt/raspberrypi/'
 readonly webmin_path='http://prdownloads.sourceforge.net/webadmin/webmin_1.791_all.deb'
 
 read -r -p "Do you want us to remove graphic libraries from this Raspberry? [y/N] " response
@@ -45,4 +45,4 @@ esac
 
 
 echo "Fixing scripts permissions"
-chmod 755 /opt/raspberrypi/ -R
+chmod 755 $install_path -R
