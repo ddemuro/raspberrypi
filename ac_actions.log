@@ -1,0 +1,22 @@
+[INFO] Air conditioning started.
+[INFO] Air conditioning already on...
+[INFO] Air conditioning off.
+[INFO] Air conditioning off.
+[INFO] Air conditioning started.
+[ERR] Air conditioning already on...
+[INFO] Air conditioning off.
+[INFO] Air conditioning off.
+[ERR] Air conditioning already off...
+[INFO] Air conditioning started.
+[INFO] Air conditioning off.
+[INFO] Air conditioning started.
+[INFO] Resetting temperature
+[INFO] Air conditioning temperature set to: 
+[ERR] Air conditioning already on...
+[INFO] Resetting temperature
+[INFO] Resetting temperature
+[INFO] Resetting temperature
+[INFO] Air conditioning temperature set to: 
+[INFO] Air conditioning off.
+[INFO] Air conditioning off.
+[ERR] Air conditioning already off...

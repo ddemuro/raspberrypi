@@ -16,19 +16,19 @@ data = []
 while(res == 0):
     GPIO.setmode(GPIO.BCM)
 
-    GPIO.setup(4,GPIO.OUT)
-    GPIO.output(4,GPIO.HIGH)
+    GPIO.setup(17,GPIO.OUT)
+    GPIO.output(17,GPIO.HIGH)
     time.sleep(0.025)
-    GPIO.output(4,GPIO.LOW)
+    GPIO.output(17,GPIO.LOW)
     time.sleep(0.02)
 
-    GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     del data
     data = []
     i = 0
     for i in range(0,500):
-        data.append(GPIO.input(4))
+        data.append(GPIO.input(17))
 
 
     bit_count = 0
