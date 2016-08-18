@@ -20,7 +20,7 @@
 #define PARAM_ASSIGN_ERROR 22
 int dht11_dat[5] = { 0, 0, 0, 0, 0 };
 
-void read_dht11_dat(int DHTPIN, bool MACHINE_READABLE)
+void read_dht11_dat(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG)
 {
     uint8_t laststate       = HIGH;
     uint8_t counter         = 0;
@@ -54,6 +54,11 @@ void read_dht11_dat(int DHTPIN, bool MACHINE_READABLE)
         }
         laststate = digitalRead( DHTPIN );
 
+        // Print stream of data to terminal.
+        if (DEBUG){
+            printf("%d ", laststate);
+        }
+
         if ( counter == 255 )
             break;
 
@@ -83,7 +88,7 @@ void read_dht11_dat(int DHTPIN, bool MACHINE_READABLE)
             printf( "Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
                     dht11_dat[0], dht11_dat[1], dht11_dat[2], dht11_dat[3], f );
         }
-    }else  {
+    }else if(!SKIP) {
         if(MACHINE_READABLE){
             printf("Error \n");
         }else{
@@ -96,9 +101,12 @@ int main( int argc, char *argv[] )
 {
     int interval = 1000;
     int opt;
+    bool skip = false;
     bool machineReadable = false;
+    bool justOne = false;
+    bool debug = false;
     int dataPin = 7;
-    while ((opt = getopt(argc, argv, "MI:P:")) != -1) {
+    while ((opt = getopt(argc, argv, "MDJI:P:s")) != -1) {
         switch (opt) {
             case 'I':
                 interval = atoi(optarg) * 1000;
@@ -109,6 +117,15 @@ int main( int argc, char *argv[] )
             case 'P':
                 dataPin = atoi(optarg);
                 break;
+            case 'J':
+                justOne = true;
+                break;
+            case 'D':
+                debug = true;
+                break;
+	    case 's':
+		skip = true;
+		break;
             case ':':
                 /* missing option argument */
                 fprintf(stderr, "%s: option '-%c' requires an argument\n",
@@ -121,16 +138,22 @@ int main( int argc, char *argv[] )
                 printf( "I number is the interval to run [Seconds].\n" );
                 printf( "M flag to set machine readable which is [Humidity Temperature]\n" );
                 printf( "P number is the data pin to use, default is 7\n" );
+                printf( "J is just one value pair, for scripting mainly...\n" );
+                printf( "D Will print everything in the pin out...\n" );
         }
     }
 
     if ( wiringPiSetup() == -1 )
         exit( 1 );
 
-    while ( 1 )
-    {
-        read_dht11_dat(dataPin, machineReadable);
-        delay(interval); /* wait 1sec to refresh */
+    if ( justOne ){
+        read_dht11_dat(dataPin, machineReadable, skip, debug);
+    }else{
+        while ( 1 )
+        {
+            read_dht11_dat(dataPin, machineReadable, skip, debug);
+            delay(interval); /* wait 1sec to refresh */
+        }
     }
     return(0);
 }
