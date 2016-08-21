@@ -18,16 +18,16 @@
 
 #define MAXTIMINGS      85
 #define PARAM_ASSIGN_ERROR 22
-int dht11_dat[5] = { 0, 0, 0, 0, 0 };
+int dht_buff_data[5] = { 0, 0, 0, 0, 0 };
 
-void read_dht11_dat(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int DHVER)
+void read_dht_buff_data(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int DHVER)
 {
     uint8_t laststate       = HIGH;
     uint8_t counter         = 0;
     uint8_t j               = 0, i;
     float   f; /* fahrenheit */
 
-    dht11_dat[0] = dht11_dat[1] = dht11_dat[2] = dht11_dat[3] = dht11_dat[4] = 0;
+    dht_buff_data[0] = dht_buff_data[1] = dht_buff_data[2] = dht_buff_data[3] = dht_buff_data[4] = 0;
 
     /* pull pin down for 18 milliseconds */
     pinMode( DHTPIN, OUTPUT );
@@ -66,9 +66,9 @@ void read_dht11_dat(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, in
         if ( (i >= 4) && (i % 2 == 0) )
         {
             /* shove each bit into the storage bytes */
-            dht11_dat[j / 8] <<= 1;
+            dht_buff_data[j / 8] <<= 1;
             if ( counter > 16 )
-                    dht11_dat[j / 8] |= 1;
+                    dht_buff_data[j / 8] |= 1;
             j++;
         }
     }
@@ -76,29 +76,29 @@ void read_dht11_dat(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, in
     // Depending the version how we print out the data.
     switch(DHVER){
       case 11:
-        dht11_print();
+        dht11_print(DHTPIN, MACHINE_READABLE, SKIP, DEBUG, DHVER, dht_buff_data);
       case 22:
-        dht22_print();
+        dht22_print(DHTPIN, MACHINE_READABLE, SKIP, DEBUG, DHVER, dht_buff_data);
       default:
-        dht22_print();
+        dht22_print(DHTPIN, MACHINE_READABLE, SKIP, DEBUG, DHVER, dht_buff_data);
     }
 
 }
 
-void dht11_print(){
+void dht11_print(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int DHVER, int dht_buff_data[5]){
   /*
   * check we read 40 bits (8bit x 5 ) + verify checksum in the last byte
   */
   if ( (j >= 40) &&
-          (dht11_dat[4] == ( (dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF) ) )
+          (dht_buff_data[4] == ( (dht_buff_data[0] + dht_buff_data[1] + dht_buff_data[2] + dht_buff_data[3]) & 0xFF) ) )
   {
-      f = dht11_dat[2] * 9. / 5. + 32;
+      f = dht_buff_data[2] * 9. / 5. + 32;
       if(MACHINE_READABLE){
           printf( "%d.%d %d.%d\n",
-                  dht11_dat[0], dht11_dat[1], dht11_dat[2], dht11_dat[3], f );
+                  dht_buff_data[0], dht_buff_data[1], dht_buff_data[2], dht_buff_data[3], f );
       }else{
           printf( "Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
-                  dht11_dat[0], dht11_dat[1], dht11_dat[2], dht11_dat[3], f );
+                  dht_buff_data[0], dht_buff_data[1], dht_buff_data[2], dht_buff_data[3], f );
       }
   }else if(!SKIP) {
       if(MACHINE_READABLE){
@@ -109,16 +109,16 @@ void dht11_print(){
   }
 }
 
-void dht22_print(){
+void dht22_print(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int DHVER, int dht_buff_data[5]){
   // check we read 40 bits (8bit x 5 ) + verify checksum in the last byte
   if ((j >= 40) &&
-      (dht22_dat[4] == ((dht22_dat[0] + dht22_dat[1] + dht22_dat[2] + dht22_dat[3]) & 0xFF)) ) {
+      (dht_buff_data[4] == ((dht_buff_data[0] + dht_buff_data[1] + dht_buff_data[2] + dht_buff_data[3]) & 0xFF)) ) {
         float t, h;
-        h = (float)dht22_dat[0] * 256 + (float)dht22_dat[1];
+        h = (float)dht_buff_data[0] * 256 + (float)dht_buff_data[1];
         h /= 10;
-        t = (float)(dht22_dat[2] & 0x7F)* 256 + (float)dht22_dat[3];
+        t = (float)(dht_buff_data[2] & 0x7F)* 256 + (float)dht_buff_data[3];
         t /= 10.0;
-        if ((dht22_dat[2] & 0x80) != 0)  t *= -1;
+        if ((dht_buff_data[2] & 0x80) != 0)  t *= -1;
     if(MACHINE_READABLE){
         printf("%.2f %% %.2f\n", h, t );
     }else{
@@ -189,11 +189,11 @@ int main( int argc, char *argv[] )
         exit( 1 );
 
     if ( justOne ){
-        read_dht11_dat(dataPin, machineReadable, skip, debug, version);
+        read_dht_buff_data(dataPin, machineReadable, skip, debug, version);
     }else{
         while ( 1 )
         {
-            read_dht11_dat(dataPin, machineReadable, skip, debug, version);
+            read_dht_buff_data(dataPin, machineReadable, skip, debug, version);
             delay(interval); /* wait 1sec to refresh */
         }
     }
