@@ -20,6 +20,56 @@
 #define PARAM_ASSIGN_ERROR 22
 int dht_buff_data[5] = { 0, 0, 0, 0, 0 };
 
+
+void dht11_print(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int DHVER, int dht_buff_data[5], uint8_t j, float f){
+  /*
+  * check we read 40 bits (8bit x 5 ) + verify checksum in the last byte
+  */
+  if ( (j >= 40) &&
+          (dht_buff_data[4] == ( (dht_buff_data[0] + dht_buff_data[1] + dht_buff_data[2] + dht_buff_data[3]) & 0xFF) ) )
+  {
+      f = dht_buff_data[2] * 9. / 5. + 32;
+      if(MACHINE_READABLE){
+          printf( "%d.%d %d.%d\n",
+                  dht_buff_data[0], dht_buff_data[1], dht_buff_data[2], dht_buff_data[3], f );
+      }else{
+          printf( "Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
+                  dht_buff_data[0], dht_buff_data[1], dht_buff_data[2], dht_buff_data[3], f );
+      }
+  }else if(!SKIP) {
+      if(MACHINE_READABLE){
+          printf("Error \n");
+      }else{
+          printf("Error reading data from sensor, skipping...\n");
+      }
+  }
+}
+
+void dht22_print(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int DHVER, int dht_buff_data[5], uint8_t j, float f){
+  // check we read 40 bits (8bit x 5 ) + verify checksum in the last byte
+  if ((j >= 40) &&
+      (dht_buff_data[4] == ((dht_buff_data[0] + dht_buff_data[1] + dht_buff_data[2] + dht_buff_data[3]) & 0xFF)) ) {
+        float t, h;
+        h = (float)dht_buff_data[0] * 256 + (float)dht_buff_data[1];
+        h /= 10;
+        t = (float)(dht_buff_data[2] & 0x7F)* 256 + (float)dht_buff_data[3];
+        t /= 10.0;
+        if ((dht_buff_data[2] & 0x80) != 0)  t *= -1;
+    if(MACHINE_READABLE){
+        printf("%.2f %% %.2f\n", h, t );
+    }else{
+        printf("Humidity = %.2f %% Temperature = %.2f *C \n", h, t );
+    }
+  }
+  else if(!SKIP) {
+      if(MACHINE_READABLE){
+          printf("Error \n");
+      }else{
+          printf("Error reading data from sensor, skipping...\n");
+      }
+  }
+}
+
 void read_dht_buff_data(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int DHVER)
 {
     uint8_t laststate       = HIGH;
@@ -82,56 +132,6 @@ void read_dht_buff_data(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG
       default:
         dht22_print(DHTPIN, MACHINE_READABLE, SKIP, DEBUG, DHVER, dht_buff_data, j, f);
     }
-
-}
-
-void dht11_print(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int DHVER, int dht_buff_data[5], uint8_t j, float f){
-  /*
-  * check we read 40 bits (8bit x 5 ) + verify checksum in the last byte
-  */
-  if ( (j >= 40) &&
-          (dht_buff_data[4] == ( (dht_buff_data[0] + dht_buff_data[1] + dht_buff_data[2] + dht_buff_data[3]) & 0xFF) ) )
-  {
-      f = dht_buff_data[2] * 9. / 5. + 32;
-      if(MACHINE_READABLE){
-          printf( "%d.%d %d.%d\n",
-                  dht_buff_data[0], dht_buff_data[1], dht_buff_data[2], dht_buff_data[3], f );
-      }else{
-          printf( "Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
-                  dht_buff_data[0], dht_buff_data[1], dht_buff_data[2], dht_buff_data[3], f );
-      }
-  }else if(!SKIP) {
-      if(MACHINE_READABLE){
-          printf("Error \n");
-      }else{
-          printf("Error reading data from sensor, skipping...\n");
-      }
-  }
-}
-
-void dht22_print(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int DHVER, int dht_buff_data[5], uint8_t j, float f){
-  // check we read 40 bits (8bit x 5 ) + verify checksum in the last byte
-  if ((j >= 40) &&
-      (dht_buff_data[4] == ((dht_buff_data[0] + dht_buff_data[1] + dht_buff_data[2] + dht_buff_data[3]) & 0xFF)) ) {
-        float t, h;
-        h = (float)dht_buff_data[0] * 256 + (float)dht_buff_data[1];
-        h /= 10;
-        t = (float)(dht_buff_data[2] & 0x7F)* 256 + (float)dht_buff_data[3];
-        t /= 10.0;
-        if ((dht_buff_data[2] & 0x80) != 0)  t *= -1;
-    if(MACHINE_READABLE){
-        printf("%.2f %% %.2f\n", h, t );
-    }else{
-        printf("Humidity = %.2f %% Temperature = %.2f *C \n", h, t );
-    }
-  }
-  else if(!SKIP) {
-      if(MACHINE_READABLE){
-          printf("Error \n");
-      }else{
-          printf("Error reading data from sensor, skipping...\n");
-      }
-  }
 }
 
 int main( int argc, char *argv[] )
