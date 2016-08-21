@@ -33,7 +33,7 @@ void dht11_print(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int D
           printf( "%d.%d %d.%d\n",
                   dht_buff_data[0], dht_buff_data[1], dht_buff_data[2], dht_buff_data[3], f );
       }else{
-          printf( "Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
+          printf( "Humidity = %d.%d Temperature = %d.%d *C (%.1f *F)\n",
                   dht_buff_data[0], dht_buff_data[1], dht_buff_data[2], dht_buff_data[3], f );
       }
   }else if(!SKIP) {
@@ -56,9 +56,9 @@ void dht22_print(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int D
         t /= 10.0;
         if ((dht_buff_data[2] & 0x80) != 0)  t *= -1;
     if(MACHINE_READABLE){
-        printf("%.2f %% %.2f\n", h, t );
+        printf("%.2f %.2f\n", h, t );
     }else{
-        printf("Humidity = %.2f %% Temperature = %.2f *C \n", h, t );
+        printf("Humidity = %.2f Temperature = %.2f *C \n", h, t );
     }
   }
   else if(!SKIP) {
