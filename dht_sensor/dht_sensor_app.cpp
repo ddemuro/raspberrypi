@@ -20,7 +20,7 @@
 #define PARAM_ASSIGN_ERROR 22
 int dht11_dat[5] = { 0, 0, 0, 0, 0 };
 
-void read_dht11_dat(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG)
+void read_dht11_dat(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG, int DHVER)
 {
     uint8_t laststate       = HIGH;
     uint8_t counter         = 0;
@@ -73,28 +73,65 @@ void read_dht11_dat(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG)
         }
     }
 
-    /*
-        * check we read 40 bits (8bit x 5 ) + verify checksum in the last byte
-        * print it out if data is good
-        */
-    if ( (j >= 40) &&
-            (dht11_dat[4] == ( (dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF) ) )
-    {
-        f = dht11_dat[2] * 9. / 5. + 32;
-        if(MACHINE_READABLE){
-            printf( "%d.%d %d.%d\n",
-                    dht11_dat[0], dht11_dat[1], dht11_dat[2], dht11_dat[3], f );
-        }else{
-            printf( "Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
-                    dht11_dat[0], dht11_dat[1], dht11_dat[2], dht11_dat[3], f );
-        }
-    }else if(!SKIP) {
-        if(MACHINE_READABLE){
-            printf("Error \n");
-        }else{
-            printf("Error reading data from sensor, skipping...\n");
-        }
+    // Depending the version how we print out the data.
+    switch(DHVER){
+      case 11:
+        dht11_print();
+      case 22:
+        dht22_print();
+      default:
+        dht22_print();
     }
+
+}
+
+void dht11_print(){
+  /*
+  * check we read 40 bits (8bit x 5 ) + verify checksum in the last byte
+  */
+  if ( (j >= 40) &&
+          (dht11_dat[4] == ( (dht11_dat[0] + dht11_dat[1] + dht11_dat[2] + dht11_dat[3]) & 0xFF) ) )
+  {
+      f = dht11_dat[2] * 9. / 5. + 32;
+      if(MACHINE_READABLE){
+          printf( "%d.%d %d.%d\n",
+                  dht11_dat[0], dht11_dat[1], dht11_dat[2], dht11_dat[3], f );
+      }else{
+          printf( "Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
+                  dht11_dat[0], dht11_dat[1], dht11_dat[2], dht11_dat[3], f );
+      }
+  }else if(!SKIP) {
+      if(MACHINE_READABLE){
+          printf("Error \n");
+      }else{
+          printf("Error reading data from sensor, skipping...\n");
+      }
+  }
+}
+
+void dht22_print(){
+  // check we read 40 bits (8bit x 5 ) + verify checksum in the last byte
+  if ((j >= 40) &&
+      (dht22_dat[4] == ((dht22_dat[0] + dht22_dat[1] + dht22_dat[2] + dht22_dat[3]) & 0xFF)) ) {
+        float t, h;
+        h = (float)dht22_dat[0] * 256 + (float)dht22_dat[1];
+        h /= 10;
+        t = (float)(dht22_dat[2] & 0x7F)* 256 + (float)dht22_dat[3];
+        t /= 10.0;
+        if ((dht22_dat[2] & 0x80) != 0)  t *= -1;
+    if(MACHINE_READABLE){
+        printf("%.2f %% %.2f\n", h, t );
+    }else{
+        printf("Humidity = %.2f %% Temperature = %.2f *C \n", h, t );
+    }
+  }
+  else if(!SKIP) {
+      if(MACHINE_READABLE){
+          printf("Error \n");
+      }else{
+          printf("Error reading data from sensor, skipping...\n");
+      }
+  }
 }
 
 int main( int argc, char *argv[] )
@@ -106,7 +143,8 @@ int main( int argc, char *argv[] )
     bool justOne = false;
     bool debug = false;
     int dataPin = 7;
-    while ((opt = getopt(argc, argv, "MDJI:P:s")) != -1) {
+    int version = 11;
+    while ((opt = getopt(argc, argv, "MDJI:P:s:V")) != -1) {
         switch (opt) {
             case 'I':
                 interval = atoi(optarg) * 1000;
@@ -123,6 +161,9 @@ int main( int argc, char *argv[] )
             case 'D':
                 debug = true;
                 break;
+            case 'V':
+              version = atoi(optarg);
+              break;
 	    case 's':
 		skip = true;
 		break;
@@ -140,6 +181,7 @@ int main( int argc, char *argv[] )
                 printf( "P number is the data pin to use, default is 7\n" );
                 printf( "J is just one value pair, for scripting mainly...\n" );
                 printf( "D Will print everything in the pin out...\n" );
+                printf( "V Sensor version, default 11...\n" );
         }
     }
 
@@ -147,11 +189,11 @@ int main( int argc, char *argv[] )
         exit( 1 );
 
     if ( justOne ){
-        read_dht11_dat(dataPin, machineReadable, skip, debug);
+        read_dht11_dat(dataPin, machineReadable, skip, debug, version);
     }else{
         while ( 1 )
         {
-            read_dht11_dat(dataPin, machineReadable, skip, debug);
+            read_dht11_dat(dataPin, machineReadable, skip, debug, version);
             delay(interval); /* wait 1sec to refresh */
         }
     }
