@@ -124,13 +124,10 @@ void read_dht_buff_data(int DHTPIN, bool MACHINE_READABLE, bool SKIP, bool DEBUG
     }
 
     // Depending the version how we print out the data.
-    switch(DHVER){
-      case 11:
-        dht11_print(DHTPIN, MACHINE_READABLE, SKIP, DEBUG, DHVER, dht_buff_data, j, f);
-      case 22:
-        dht22_print(DHTPIN, MACHINE_READABLE, SKIP, DEBUG, DHVER, dht_buff_data, j, f);
-      default:
-        dht22_print(DHTPIN, MACHINE_READABLE, SKIP, DEBUG, DHVER, dht_buff_data, j, f);
+    if (DHVER == 11){
+      dht11_print(DHTPIN, MACHINE_READABLE, SKIP, DEBUG, DHVER, dht_buff_data, j, f);
+    }else{
+      dht22_print(DHTPIN, MACHINE_READABLE, SKIP, DEBUG, DHVER, dht_buff_data, j, f);
     }
 }
 
