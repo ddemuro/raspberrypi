@@ -141,7 +141,7 @@ int main( int argc, char *argv[] )
     bool debug = false;
     int dataPin = 7;
     int version = 11;
-    while ((opt = getopt(argc, argv, "MDJI:P:s:V")) != -1) {
+    while ((opt = getopt(argc, argv, "MDJI:V:P:s")) != -1) {
         switch (opt) {
             case 'I':
                 interval = atoi(optarg) * 1000;
