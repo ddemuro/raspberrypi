@@ -15,9 +15,9 @@ from email.MIMEText import MIMEText
 ################# EMAIL    ###############
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
-SENDER = 'ddemuro@gmail.com'
-PASSWORD = "474646710sw33t"
-RECIPIENT = "ddemuro@gmail.com"
+SENDER = '###########'
+PASSWORD = "############"
+RECIPIENT = "##############"
 ##########################################
 ################## GENERAL ###############
 DEFINED_LOCATION_NAME = "ALARMA HELADERA"
